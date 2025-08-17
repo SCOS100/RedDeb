@@ -1,2 +1,3 @@
-# RedDeb
-Source Code for Redmi Debian
+# RedDeb - Debian and other distributions on Phones!
+
+> Kind of counterintuitive
