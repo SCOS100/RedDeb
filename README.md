@@ -25,7 +25,7 @@ Personally, I've seen many Mediatek sources **not** build correctly, as Mediatek
 
 # How do I build RedDeb?
 
-Please check `Building` in the wiki.
+Please check [`Building`](https://github.com/SCOS100/RedDeb/wiki/Building) in the wiki.
 
 # Downloads?
 
