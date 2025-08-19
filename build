@@ -1,0 +1,46 @@
+#!/bin/sh
+
+if [ $UID != "0" ]; then echo "Please run as root."; exit 1; fi
+
+# Build RedDeb...
+
+distrobuilder >/dev/null || { echo "DistroBuilder not available!!!"; exit 1; }
+
+echo "Building Alpine..."
+distrobuilder build-dir res/alpine.yaml src/rootfs || exit 1
+cp -r res/kernel/* src/rootfs
+
+chroot src/rootfs usr/bin/env - adduser reddeb
+
+mkdir src/rootfs/etc/X11
+cat >src/rootfs/etc/X11/xorg.conf <<EOF
+Section "Device"
+    Identifier "Framebuffer"
+    Driver "fbdev"
+    Option "fbdev" "/dev/fb0"
+EndSection
+
+Section "Monitor"
+    Identifier "Builtin"
+EndSection
+
+Section "Screen"
+    Identifier "Screen0"
+    Device "Framebuffer"
+    Monitor "Builtin"
+    DefaultDepth 24
+    SubSection "Display"
+        Depth 24
+    EndSubSection
+EndSection
+
+Section "ServerLayout"
+    Identifier "Layout0"
+    Screen 0 "Screen0"
+EndSection
+EOF
+
+cat >src/rootfs/home/reddeb/.Xresources <<EOF
+XTerm*faceName: Terminus
+XTerm*faceSize: 14
+EOF
