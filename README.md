@@ -12,21 +12,17 @@ The nice thing about RedDeb is that, unlike other Linux OS's for Android Smartph
 
 # Which devices support/don't support RedDeb?
 
-Right now, with the current devices that I own, RedDeb only works on the **Redmi Note 11**, but other phones that *may* be able to support RedDeb are:
+Right now, with the current devices that I own, RedDeb only works on the **Redmi Note 11**, but other phones that may be able to support RedDeb are:
 
 * Phones with **SnapDragon chips**.
 * Phones that have a **Close-To-Mainstream** kernel (e.g. 6.x.x).
 * Phones with a **large community**. (custom kernel sources, tutorials on building kernels, etc.)
 * Phones that you or others have succesfully **built and booted custom kernels**
 
-If your phone has one or more of these requirements, then you might be able to build Reddeb. If your device meets **all** the requirements, then you're sure 100% that your phone can run RedDeb.
+If your phone has one or more of these requirements, then you might be able to build Reddeb. If your device meets **all** the requirements, then you're sure 100% that your phone can run RedDeb (See [`Porting`](https://github.com/SCOS100/RedDeb/wiki/Porting))
 
 Personally, I've seen many Mediatek sources **not** build correctly, as Mediatek's are harder to build because of their closed-source kernels.
 
 # How do I build RedDeb?
 
 Please check [`Building`](https://github.com/SCOS100/RedDeb/wiki/Building) in the wiki.
-
-# Downloads?
-
-There are currently none as RedDeb is not stable yet.

@@ -1,0 +1,39 @@
+#!/bin/sh
+
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+
+panic() {
+	echo "$1"
+	echo "[panic] Executing shell... (WARNING!!! Don't exit this shell, instead, reboot)"
+	exec sh
+}
+
+mountpoint -q /dev || mount -t devtmpfs none /dev
+mountpoint -q /proc || mount -t proc proc /proc
+mountpoint -q /sys || mount -t sysfs none /sys
+
+dmesg -n1
+
+mountpoint -q /sdcard || mount /dev/mmcblk0p1 /sdcard || \
+while ! mountpoint -q /sdcard; do
+	echo "[ERROR] SD-Card not detected, this may be because of a bad or missing SD-Card. Please double check the SIM Tray Slot is populated with an SD-Card and press enter..."
+	read
+	mount /dev/mmcblk0p1 /sdcard
+done
+
+echo "[initramfs] Welcome to RedDeb! We're about to get started booting..."
+echo "[initramfs] If you need to use a plain shell, please press any key within 10 seconds."
+if read -t 10 -n 1; then
+	echo "[initramfs] Executing shell..."
+	sh
+else
+	echo "[initramfs] Continuing boot process..."
+fi
+
+mount /sdcard/reddeb.img /sysroot
+
+mount -o move /dev /sysroot/dev
+mount -o move /sys /sysroot/sys
+mount -o move /proc /sysroot/proc
+mount -t tmpfs tmpfs /sysroot/tmp
+exec switch_root /sysroot/ /sbin/init

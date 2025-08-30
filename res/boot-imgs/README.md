@@ -1,1 +1,0 @@
-**Drop here your boot_b.img and vendor_boot_b.img...**

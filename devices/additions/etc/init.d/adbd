@@ -1,0 +1,16 @@
+#!/sbin/openrc-run
+name="Android Debugging Bridge Daemon"
+description="Debugging utility."
+
+command="/sbin/adbd"
+command_background="yes"
+pidfile="/run/$RC_SVCNAME.pid"
+
+depend() {
+	need localmount
+	after bootmisc
+}
+
+start_pre() {
+	mountpoint /sys/kernel/config/ || mount -t configfs none /sys/kernel/config
+}

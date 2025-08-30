@@ -1,0 +1,12 @@
+[DeviceInfo]
+MarketName=Redmi Note 11
+Manufacturer=Xiaomi
+SOCName=Qualcomm® Snapdragon™ 680
+SOCModel=SM6225 (KHAJE)
+Board=Bengal
+Arch=aarch64
+ABI=arm64-v8a,armeabi-v7a,armeabi
+
+[RedDeb]
+Type=Stable
+BroughtBy=SCOS100

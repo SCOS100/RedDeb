@@ -1,1 +1,0 @@
-# Image provided by @SCOS100
