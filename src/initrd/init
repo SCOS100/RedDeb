@@ -5,7 +5,7 @@ export PATH=/bin:/sbin:/usr/bin:/usr/sbin
 panic() {
 	echo "$1"
 	echo "[panic] Executing shell... (WARNING!!! Don't exit this shell, instead, reboot)"
-	exec sh
+	exec setsid -c 'sh <>/dev/tty0'
 }
 
 mountpoint -q /dev || mount -t devtmpfs none /dev
@@ -13,30 +13,31 @@ mountpoint -q /proc || mount -t proc proc /proc
 mountpoint -q /sys || mount -t sysfs none /sys
 mountpoint -q /run || mount -t tmpfs none /run
 
-dmesg -n1
+dmesg -n1; clear
+setfont -C tty1 usr/share/consolefonts/Uni1-VGA32x16.psf.gz
 
-mountpoint -q /sdcard || mount /dev/mmcblk0p1 /sdcard || \
+mountpoint -q /sdcard || mount /dev/mmcblk0p1 /mnt/sdcard || \
 while ! mountpoint -q /sdcard; do
 	echo "[ERROR] SD-Card not detected, this may be because of a bad or missing SD-Card. Please double check the SIM Tray Slot is populated with an SD-Card and press any key to continue..."
 	read -n1 -s
-	mount /dev/mmcblk0p1 /sdcard
+	mount /dev/mmcblk0p1 /mnt/sdcard
 done
 
-mountpoint -q /sdcard || panic "[ERROR] SD-Card has not been mounted yet!!!"
+mountpoint -q /mnt/sdcard || panic "[ERROR] SD-Card has not been mounted yet!!!"
 
 echo "[initramfs] Welcome to RedDeb! We're about to get started booting..."
 echo "[initramfs] If you need to use a plain shell, please press any key within 10 seconds."
 if read -t 10 -n 1; then
 	echo "[initramfs] Executing shell..."
-	sh
+	setsid -c '/bin/sh <>/dev/tty0'
 else
 	echo "[initramfs] Continuing boot process..."
 fi
 
-mount /sdcard/reddeb.img /sysroot
+mount /mnt/sdcard/reddeb.img /mnt/sysroot
 
-mount -o move /dev /sysroot/dev
-mount -o move /sys /sysroot/sys
-mount -o move /proc /sysroot/proc
-mount -o move /run /sysroot/run
-exec switch_root /sysroot/ /sbin/init
+mount -o move /dev /mnt/sysroot/dev
+mount -o move /sys /mnt/sysroot/sys
+mount -o move /proc /mnt/sysroot/proc
+mount -o move /run /mnt/sysroot/run
+exec switch_root /mnt/sysroot/ /sbin/init

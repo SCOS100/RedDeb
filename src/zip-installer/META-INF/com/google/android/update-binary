@@ -1,14 +1,60 @@
-#!/bin/sh
+#!/sbin/sh
 
-echo "  ____          _ ____       _"
-echo " |  _ \ ___  __| |  _ \  ___| |__"
-echo " | |_) / _ \/ _` | | | |/ _ \ '_ \ "
-echo " |  _ <  __/ (_| | |_| |  __/ |_) |"
-echo " |_| \_\___|\__,_|____/ \___|_.__/"
+OUTFD=/proc/self/fd/$2;
+ZIP="$3";
+DIR=`dirname "$ZIP"`;
 
-if [ -e /dev/mapper/system_a ]; then
-	SLOT=_a
-else
-	SLOT=_b
+check_slot(){
+  current_slot=$(grep -o 'androidboot\.slot_suffix=_[a-b]' /proc/cmdline)
+  case "${current_slot}" in
+    "androidboot.slot_suffix=_a")
+      target_partition="_b"
+      ;;
+    "androidboot.slot_suffix=_b")
+      target_partition="_a"
+      ;;
+    "")
+      # No A/B
+      abort "RedDeb cannot be installed on single slot/not A/B devices."
+      ;;
+    *)
+      abort "Unknown error while searching for a vendor partition, exiting"
+      ;;
+  esac
+
+  boot=/dev/block/by-name/boot$target_partition
+  vendor=/dev/block/by-name/vendor_boot$target_partition
+}
+
+ui_print() {
+  until [ ! "$1" ]; do
+    echo -e "ui_print $1\nui_print" > $OUTFD;
+    shift;
+  done;
+}
+
+show_progress() { echo "progress $1 $2" > $OUTFD; }
+
+abort() { ui_print "$*"; exit 1; }
+
+ui_print " ";
+ui_print "***";
+ui_print "RedDeb Installer";
+ui_print "***";
+ui_print " ";
+ui_print " ";
+
+check_slot
+mkdir /tmp/reddeb
+cd /tmp/reddeb
+ui_print "Installing RedDeb...";
+unzip -o "$ZIP";
+if [ $? = "1" ]; then
+	abort "Cannot unzip."
 fi
+cat boot.img >$boot
+cat vendor-boot.img >$vendor
+
+ui_print " ";
+ui_print "Done! Please reboot to the other slot.";
 

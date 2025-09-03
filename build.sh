@@ -44,7 +44,8 @@ while [ -z "$DEVICE_PATH" ]; do
 	echo
 	if [ "$choice" = "y" ]; then
 		DEVICE_PATH=$SOC_PATH/$DEVICE
-		DEVICE_ARCH="$(read_info "DeviceInfo" "Arch")"
+		DEVICE_NAME="$(read_info DeviceInfo Codename)"
+		DEVICE_ARCH="$(read_info DeviceInfo Arch)"
 	fi
 done
 
@@ -53,7 +54,6 @@ if [ ! -e /dev/loop37 ]; then
 	exit 1
 fi
 
-## Setup Disk ##
 echo "Please insert an exFat formatted SD-Card with at least 9GB of storage available and press any key to continue..."
 read -n1 -s
 mount -t devtmpfs none mnt/dev
@@ -64,28 +64,25 @@ if [ ! -e mnt/sdcard/reddeb.img ]; then
 	dd if=/dev/zero of=mnt/sdcard/reddeb.img bs=1024MB count=8 status=progress
 	mkfs.ext4 mnt/sdcard/reddeb.img
 	mount mnt/sdcard/reddeb.img mnt/rootfs
+
+	ALPINE_RELEASE="$(curl -s https://mirror.csclub.uwaterloo.ca/alpine/edge/releases/aarch64/ | grep "2025" | grep "minirootfs" | sed '/alpha/d' | sed '/sha/d' | head -n1 | cut -d\" -f2 | cut -d- -f3)"
+	echo "Building Alpine..."
+	distrobuilder build-dir res/alpine.yaml mnt/rootfs -o image.serial=$ALPINE_RELEASE -o image.architecture=$DEVICE_ARCH -o image.release=edge
+	cp -r $DEVICE_PATH/kernel/* mnt/rootfs
+	echo
+	chroot mnt/rootfs usr/bin/env - /usr/sbin/adduser reddeb
+	cp -r devices/additions/* mnt/rootfs
+	chroot mnt/rootfs usr/bin/env - /sbin/rc-update add adbd default
+	echo
+	sync mnt/rootfs/*
+	umount mnt/rootfs
 else
-	echo "Disk image already exists"
-	exit 1
+	echo "Disk image already exists, skipping..."
 fi
-## End Setup Disk ##
 
-## Build System ##
-ALPINE_RELEASE="$(curl -s https://mirror.csclub.uwaterloo.ca/alpine/edge/releases/aarch64/ | grep "2025" | grep "minirootfs" | sed '/alpha/d' | sed '/sha/d' | head -n1 | cut -d\" -f2 | cut -d- -f3)"
-echo "Building Alpine..."
-distrobuilder build-dir res/alpine.yaml mnt/rootfs -o image.serial=$ALPINE_RELEASE -o image.architecture=$DEVICE_ARCH -o image.release=edge
-cp -r $DEVICE_PATH/kernel/* mnt/rootfs
-echo
-chroot mnt/rootfs usr/bin/env - /usr/sbin/adduser reddeb
-cp -r devices/additions/* mnt/rootfs
-chroot mnt/rootfs usr/bin/env - /sbin/rc-update add adbd default
-echo
-## End Build System ##
-
-sync mnt/rootfs/*
-umount mnt/rootfs
-sync mnt/sdcard
+cp $DEVICE_PATH/installer.zip mnt/sdcard
+sync mnt/sdcard/*
 umount mnt/sdcard
 umount mnt/dev
 
-echo "The main build finished successfully!"
+echo "Done."
