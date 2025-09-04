@@ -12,5 +12,5 @@ depend() {
 }
 
 start_pre() {
-	mountpoint /sys/kernel/config/ || mount -t configfs none /sys/kernel/config
+	mountpoint /sys/kernel/config/ || mount -t configfs configfs /sys/kernel/config
 }

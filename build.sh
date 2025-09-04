@@ -71,6 +71,7 @@ if [ ! -e mnt/sdcard/reddeb.img ]; then
 	cp -r $DEVICE_PATH/kernel/* mnt/rootfs
 	echo
 	chroot mnt/rootfs usr/bin/env - /usr/sbin/adduser reddeb
+	echo "reddeb ALL=(ALL:ALL) ALL" >>mnt/rootfs/etc/sudoers
 	cp -r devices/additions/* mnt/rootfs
 	chroot mnt/rootfs usr/bin/env - /sbin/rc-update add adbd default
 	echo

@@ -228,12 +228,10 @@ files:
     ::wait:/sbin/openrc default
 
     # Set up a couple of getty's
-    ::respawn:/sbin/getty 38400 console
     tty1::respawn:/sbin/getty 38400 tty1
     tty2::respawn:/sbin/getty 38400 tty2
     tty3::respawn:/sbin/getty 38400 tty3
     tty4::respawn:/sbin/getty 38400 tty4
-    osk::respawn:/usr/bin/buffyboard
 
     # Stuff to do for the 3-finger salute
     ::ctrlaltdel:/sbin/reboot
@@ -269,6 +267,7 @@ packages:
     - logrotate
     - doas
     - nano
+    - sudo
     - xf86-input-evdev
     - xf86-video-fbdev
     - xorg-server
